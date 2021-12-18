@@ -8,6 +8,8 @@ namespace TestHarness
 {
     class Program
     {
+        const string InformationAttributeTypeName = "UtilityFunctions.InformationAttribute";
+
         static void Main(string[] args)
         {
             const string TargetAssemblyFileName = "UtilityFunctions.dll";
@@ -30,6 +32,7 @@ namespace TestHarness
             Type typeChoice = ReturnProgramElementReferenceFromList(classes);
             Console.Clear();
             WriteHeadingsToScreen($"class choice: '{typeChoice}'");
+            DisplayElementDescription(GetInformationAttributeDescriptionAtrribute(typeChoice));
 
             WritePromptToScreen("please enter method u want to test");
             List<MethodInfo> methods = typeChoice.GetMethods().Where(t =>HasInformationAtrribute(t)).ToList();
@@ -40,7 +43,8 @@ namespace TestHarness
             {
                 Console.Clear();
                 WriteHeadingsToScreen($"class choice: '{typeChoice}' & Method choice: '{methodChoice}'");
-                
+                DisplayElementDescription(GetInformationAttributeDescriptionAtrribute(methodChoice));
+
                 ParameterInfo[] parmeters = methodChoice.GetParameters();
                 object classInstance = Activator.CreateInstance(typeChoice, null);
                 object result = GetResult(classInstance, methodChoice, parmeters);
@@ -48,10 +52,44 @@ namespace TestHarness
             }
         }
 
+        private static string GetInformationAttributeDescriptionAtrribute(MemberInfo memberInfo)
+        {
+            const string InformationAttributeDescriptionPropName = "Description";
+
+            foreach (var attrib in memberInfo.GetCustomAttributes())
+            {
+                Type typeOfAttrib = attrib.GetType();
+                if (typeOfAttrib.ToString().ToUpperInvariant() == InformationAttributeTypeName.ToUpperInvariant())
+                {
+                    PropertyInfo propertyInfo = typeOfAttrib.GetProperty(InformationAttributeDescriptionPropName);
+                    if(propertyInfo != null)
+                    {
+                        object s = propertyInfo.GetValue(attrib, null);
+                        if(s != null)
+                        {
+                            return s.ToString();
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private static void DisplayElementDescription(string elementDescription)
+        {
+            if(elementDescription != null)
+            {
+                Console.BackgroundColor = ConsoleColor.DarkBlue;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine(elementDescription);
+                Console.ResetColor();
+                Console.WriteLine();
+            }
+        }
+
         private static bool HasInformationAtrribute(MemberInfo memberInfo)
         {
-            string InformationAttributeTypeName = "UtilityFunctions.InformationAttribute";
-
             foreach(var attrib in memberInfo.GetCustomAttributes())
             {
                 Type typeOfAttrib = attrib.GetType();
