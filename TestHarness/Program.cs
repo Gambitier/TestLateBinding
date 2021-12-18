@@ -21,7 +21,7 @@ namespace TestHarness
 
 
             List<Type> classes = assembly.GetTypes()
-                .Where(t => t.Namespace == TargetNamespace)
+                .Where(t => t.Namespace == TargetNamespace && HasInformationAtrribute(t))
                 .ToList();
 
 
@@ -32,7 +32,7 @@ namespace TestHarness
             WriteHeadingsToScreen($"class choice: '{typeChoice}'");
 
             WritePromptToScreen("please enter method u want to test");
-            List<MethodInfo> methods = typeChoice.GetMethods().ToList();
+            List<MethodInfo> methods = typeChoice.GetMethods().Where(t =>HasInformationAtrribute(t)).ToList();
             DisplayProgramElementList(methods);
             MethodInfo methodChoice = ReturnProgramElementReferenceFromList(methods);
            
@@ -46,6 +46,22 @@ namespace TestHarness
                 object result = GetResult(classInstance, methodChoice, parmeters);
                 WriteResultToScreen(result);
             }
+        }
+
+        private static bool HasInformationAtrribute(MemberInfo memberInfo)
+        {
+            string InformationAttributeTypeName = "UtilityFunctions.InformationAttribute";
+
+            foreach(var attrib in memberInfo.GetCustomAttributes())
+            {
+                Type typeOfAttrib = attrib.GetType();
+                if(typeOfAttrib.ToString().ToUpperInvariant() == InformationAttributeTypeName.ToUpperInvariant())
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void WriteResultToScreen(object result)
