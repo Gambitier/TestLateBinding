@@ -27,28 +27,39 @@ namespace TestHarness
                 .ToList();
 
 
-            WritePromptToScreen("please enter number key associated with the class you wish to test:");
-            DisplayProgramElementList(classes);
-            Type typeChoice = ReturnProgramElementReferenceFromList(classes);
-            Console.Clear();
-            WriteHeadingsToScreen($"class choice: '{typeChoice}'");
-            DisplayElementDescription(GetInformationAttributeDescriptionAtrribute(typeChoice));
-
-            WritePromptToScreen("please enter method u want to test");
-            List<MethodInfo> methods = typeChoice.GetMethods().Where(t =>HasInformationAtrribute(t)).ToList();
-            DisplayProgramElementList(methods);
-            MethodInfo methodChoice = ReturnProgramElementReferenceFromList(methods);
-           
-            if(methodChoice != null)
+            while (true)
             {
                 Console.Clear();
-                WriteHeadingsToScreen($"class choice: '{typeChoice}' & Method choice: '{methodChoice}'");
-                DisplayElementDescription(GetInformationAttributeDescriptionAtrribute(methodChoice));
 
-                ParameterInfo[] parmeters = methodChoice.GetParameters();
-                object classInstance = Activator.CreateInstance(typeChoice, null);
-                object result = GetResult(classInstance, methodChoice, parmeters);
-                WriteResultToScreen(result);
+                WritePromptToScreen("please enter number key associated with the class you wish to test:");
+                DisplayProgramElementList(classes);
+                Type typeChoice = ReturnProgramElementReferenceFromList(classes);
+                Console.Clear();
+                WriteHeadingsToScreen($"class choice: '{typeChoice}'");
+                DisplayElementDescription(GetInformationAttributeDescriptionAtrribute(typeChoice));
+
+                WritePromptToScreen("please enter method u want to test");
+                List<MethodInfo> methods = typeChoice.GetMethods().Where(t => HasInformationAtrribute(t)).ToList();
+                DisplayProgramElementList(methods);
+                MethodInfo methodChoice = ReturnProgramElementReferenceFromList(methods);
+
+                if (methodChoice != null)
+                {
+                    Console.Clear();
+                    WriteHeadingsToScreen($"class choice: '{typeChoice}' & Method choice: '{methodChoice}'");
+                    DisplayElementDescription(GetInformationAttributeDescriptionAtrribute(methodChoice));
+
+                    ParameterInfo[] parmeters = methodChoice.GetParameters();
+                    object classInstance = Activator.CreateInstance(typeChoice, null);
+                    object result = GetResult(classInstance, methodChoice, parmeters);
+                    WriteResultToScreen(result);
+                }
+
+                WritePromptToScreen("please enter 'spacebar' to end the application or any other key to continue...");
+                if(Console.ReadKey().Key == ConsoleKey.Spacebar)
+                {
+                    break;
+                }
             }
         }
 
@@ -171,13 +182,13 @@ namespace TestHarness
                 case ConsoleKey.D1:
                     return classes[0];
                 case ConsoleKey.D2:
-                    return classes[2];
+                    return classes[1];
                 case ConsoleKey.D3:
-                    return classes[3];
+                    return classes[2];
                 case ConsoleKey.D4:
-                    return classes[4];
+                    return classes[3];
                 case ConsoleKey.D5:
-                    return classes[5];
+                    return classes[4];
             }
 
             return default;
